@@ -2,7 +2,7 @@
 export class Process {
     private id : Number = 0;
     private registerId? : string;
-    private titleDocumento : String = "";
+    private titleDocument : String = "";
     private link? : String = "";
     private remetente? : String = "";
     private recipient : String = "";
@@ -10,9 +10,9 @@ export class Process {
     public dateEnd : Date = new Date();
     public leftDays : Number = 0;
 
-    constructor(registerId: string, titleDocumento: String, link: String, remetente: String, recipient: String, dateStart: Date, dateEnd: Date) {
+    constructor(registerId: string, titleDocument: String, link: String, remetente: String, recipient: String, dateStart: Date, dateEnd: Date) {
         this.registerId = registerId;
-        this.titleDocumento = titleDocumento;
+        this.titleDocument = titleDocument;
         this.link = link;
         this.remetente = remetente;
         this.recipient = recipient;

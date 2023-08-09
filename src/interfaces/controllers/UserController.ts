@@ -3,6 +3,7 @@ import { registerUserSchema } from "../../application/services/schemas";
 import { validate } from "../../application/services/validation";
 import { UserRepositoy  } from "../repositories/UserRepository";
 import { User } from "../../domain/entities/User";
+import { JwtAuth } from "../../application/services/JwtAuth";
 
 export class UserController {
     private router: Router = Router();
@@ -31,17 +32,29 @@ export class UserController {
     }
 
     private findAll(req: Request, res: Response): Response {
+        
         return res.status(200)
             .json({ 
                 msg: 'ok', 
                 data: UserController.userRepository.findAll() 
-            })
+            });
     }
 
     public routers(){
         return this.router
-            .get('/api/user/signin', this.signIn)
-            .post('/api/user', validate(registerUserSchema), this.register)
-            .get('/api/user', this.findAll)
+            .get(
+                '/api/user', 
+                new JwtAuth().validateToken,
+                this.findAll
+            )
+            .post(
+                '/api/user', 
+                validate(registerUserSchema), 
+                this.register
+            )
+            .get(
+                '/api/user/signin', 
+                this.signIn
+            )
     }
 }
