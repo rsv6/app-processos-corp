@@ -1,7 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.usuarios = void 0;
-exports.usuarios = [
+exports.userMock = exports.processMock = void 0;
+exports.processMock = [];
+exports.userMock = [
     {
         id: 1,
         name: "Rafael Santos",

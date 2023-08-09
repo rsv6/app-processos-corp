@@ -16,13 +16,9 @@ export class UserRepositoy {
     signIn(login: string, password: string) {
         let users = this.findAll().some(user => user.login == login && user.password == password);
 
-        console.log("User: ", users);
-
         if (!users) return null;
 
         const token = new JwtAuth().generateAcessToken({ login, password })
-
-        console.log("Token: ", token)
 
         if (!token) {
             return null;

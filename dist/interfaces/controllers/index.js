@@ -2,15 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppRouters = void 0;
 const express_1 = require("express");
-const UsuarioController_1 = require("./UsuarioController");
+const UserController_1 = require("./UserController");
+const ProcessController_1 = require("./ProcessController");
 class AppRouters {
     constructor() {
         this.router = (0, express_1.Router)();
-        this.usuario = new UsuarioController_1.UsuarioController();
+        this.user = new UserController_1.UserController();
     }
     start() {
         return this.router
-            .use(this.usuario.routers());
+            .use(new ProcessController_1.ProcessController().routers())
+            .use(this.user.routers());
     }
 }
 exports.AppRouters = AppRouters;

@@ -3,6 +3,7 @@ import { ProcessRepository } from "../repositories/ProcessRepository";
 import { validate } from "../../application/services/validation";
 import { registerProcessSchema } from "../../application/services/schemas";
 import { Process } from "../../domain/entities/Process";
+import { JwtAuth } from "../../application/services/JwtAuth";
 
 
 export class ProcessController {
@@ -17,7 +18,6 @@ export class ProcessController {
                 .register(
                     new Process(registerId, title, link, remetente, recipient, dateStart, dateEnd)
                 );
-
         return res.status(201).json({ msg: 'ok', data: ProcessController.processRepository });
     }
 
@@ -26,12 +26,21 @@ export class ProcessController {
             .json({
                 msg: 'ok',
                 data: ProcessController.processRepository.findAll()
-            })
+            });
     }
 
     public routers() {
         return this.router
-            .post('/api/process', validate(registerProcessSchema), this.register)
-            .get('/api/process', this.findAll)
+            .post(
+                '/api/process', 
+                validate(registerProcessSchema), 
+                new JwtAuth().validateToken, 
+                this.register
+            )
+            .get(
+                '/api/process', 
+                new JwtAuth().validateToken, 
+                this.findAll
+            )
     }
 }
