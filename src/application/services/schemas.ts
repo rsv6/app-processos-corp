@@ -37,9 +37,14 @@ export const registerUserSchema = z.object({
             message: "Name requer pelo menos 3 caracteres!"
         }),
         login: z.string({
-            invalid_type_error: "Login precisa ser uma string"
+            invalid_type_error: "Login precisa ser uma string!",
+        }).min(3, {
+            message: "Login requer pelo menos 3 caracteres!"
+        }),
+        email: z.string({
+            invalid_type_error: "Email precisa ser uma string"
         }).email({
-            message: "Login precisa ser no formato de email!"
+            message: "Email precisa ser no formato de email!"
         }),
         password: z.string({
             invalid_type_error: "Password precisa ser uma string!"

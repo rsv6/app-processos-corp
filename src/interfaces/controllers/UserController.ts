@@ -10,11 +10,24 @@ export class UserController {
 
     private register(req: Request, res: Response): Response {
 
-        const {login, email, password} = req.body;
+        const {name, login, email, password} = req.body;
 
-        UserController.userRepository.register(new User(login, email, password))
+        UserController.userRepository.register(new User(name, login, email, password))
 
         return res.status(200).json({ msg: 'ok', data: [req.body] })
+    }
+
+    private signIn(req: Request, res: Response): Response {
+
+        const {login, password} = req.body;
+
+        let token = UserController.userRepository.signIn(login, password);
+
+        if (!token) {
+            return res.status(401).json({ msg: "Unauthorized", data: [] });
+        }
+
+        return res.status(200).json({ msg: "SignIn Succefully", data: token })
     }
 
     private findAll(req: Request, res: Response): Response {
@@ -27,6 +40,7 @@ export class UserController {
 
     public routers(){
         return this.router
+            .get('/api/user/signin', this.signIn)
             .post('/api/user', validate(registerUserSchema), this.register)
             .get('/api/user', this.findAll)
     }
