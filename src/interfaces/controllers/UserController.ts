@@ -19,7 +19,7 @@ export class UserController {
 
     public routers(){
         return this.router
-            .post('/api/usuario', this.register)
-            .get('/api/usuario', this.findAll)
+            .post('/api/user', this.register)
+            .get('/api/user', this.findAll)
     }
 }
