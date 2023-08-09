@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { ProcessRepository } from "../repositories/ProcessRepository";
-import { Validation } from "../../application/services/Validation";
+import { validate } from "../../application/services/validation";
+import { registerProcessSchema } from "../../application/services/schemas";
 import { Process } from "../../domain/entities/Process";
 
 
@@ -10,10 +11,6 @@ export class ProcessController {
 
     private register(req: Request, res: Response): Response {
         let { registerId, title, link, remetente, recipient, dateStart, dateEnd } = req.body;
-
-        // if (!Validation.checkReqProcess(title, link, remetente, recipient, dateStart, dateEnd)) {
-        //     return res.status(401).json({ msg: "failed", data: [] });
-        // }
 
         ProcessController
             .processRepository
@@ -34,7 +31,7 @@ export class ProcessController {
 
     public routers() {
         return this.router
-            .post('/api/process', this.register)
+            .post('/api/process', validate(registerProcessSchema), this.register)
             .get('/api/process', this.findAll)
     }
 }
