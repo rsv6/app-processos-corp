@@ -11,7 +11,7 @@ export class UserController {
 
     private register(req: Request, res: Response): Response {
 
-        const {name, login, email, password} = req.body;
+        const {name, login, email, password, nivel} = req.body;
 
         UserController.userRepository.register(new User(name, login, email, password))
 
