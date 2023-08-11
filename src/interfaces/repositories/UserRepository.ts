@@ -1,20 +1,26 @@
-import { userMock } from "../../adapters/database/mock";
+import { ObjectId, ObtainDocumentType } from "mongoose";
 import { JwtAuth } from "../../application/services/JwtAuth";
 import { User } from "../../domain/entities/User";
 import userModel from '../../domain/schemas/userSchema';
+import { ValidateRegister } from "../../application/services/ValidateRegister";
 
 export class UserRepositoy {
 
     private static ListUsers: User[] = [];
-    private static usuariosMock = userMock;
+    private validateRegister = new ValidateRegister();
 
     async register(user: User) {
 
         try {
-
-            await userModel.create(user);
-
-            return true;
+            if (!await this.validateRegister.checkIfExistsRegister(user.login, user.email)) {
+                
+                await userModel.create(user);
+                await console.log("User created with successfully!!!"); 
+                return true;
+            }
+            
+            console.log("User already exist!!!");  
+            return false;
         } catch (err) {
 
             console.log("Error: ", err);
@@ -22,23 +28,22 @@ export class UserRepositoy {
         }
     }
 
-    signIn(login: string, password: string) {
-        let users = this.findAll().some(user => user.login == login && user.password == password);
+    async signIn(login: string, password: string): Promise<string | null> {
 
-        if (!users) return null;
+        const user = await userModel.findOne({ $and: [ { login}, { password }] }) 
 
-        const token = new JwtAuth().generateAcessToken({ login, password })
+        if (!user) return null;
 
-        if (!token) {
-            return null;
-        }
+        const token = new JwtAuth().generateAcessToken(user)
+
+        if (!token) return null;
 
         return token;
     }
 
-    findAll(): User[] {
+    async findAll(): Promise<User[]> { 
+
         // UserRepositoy.ListUsers.push(...UserRepositoy.usuariosMock);
         return UserRepositoy.ListUsers;
     }
-
 }
