@@ -1,12 +1,17 @@
-import { ExecException } from 'child_process';
 import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
+import { User } from '../../domain/entities/User';
 
 export class JwtAuth {
     
-    generateAcessToken(user: Object) {
+    generateAcessToken(user: User) {
         return jwt.sign(
-            user, 
+            {
+                name: user.name,
+                login: user.login,
+                email: user.email,
+                nivel: user.nivel  
+            }, 
             String(process.env.TOKEN_SECRET),
             {
                 expiresIn: '1800s'
