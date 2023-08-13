@@ -1,13 +1,13 @@
 import { Router, Request, Response } from "express";
 import { registerUserSchema } from "../../application/services/schemas";
 import { validate } from "../../application/services/validation";
-import { UserRepositoy  } from "../repositories/UserRepository";
+import { UserRepository  } from "../repositories/UserRepository";
 import { User } from "../../domain/entities/User";
 import { JwtAuth } from "../../application/services/JwtAuth";
 
 export class UserController {
     private router: Router = Router();
-    private static userRepository = new UserRepositoy();
+    private static userRepository = new UserRepository();
 
     private async register(req: Request, res: Response): Promise<Response> {
 
@@ -38,13 +38,25 @@ export class UserController {
         return await res.status(200).json({ msg: "SignIn Successfully", data: token })
     }
 
-    private findAll(req: Request, res: Response): Response {
-        
-        return res.status(200)
-            .json({ 
-                msg: 'ok', 
-                data: UserController.userRepository.findAll() 
-            });
+    private async findAll(req: Request, res: Response): Promise<Response> {
+
+        // need to implement validation token of authorization for viewer all users: admin
+        return res.status(200).json({ msg: "ok", data: await UserController.userRepository.findAll() })
+    }
+
+    private async update(req: Request, res: Response): Promise<Response> {
+
+        const { id } = req.params
+        const { data } = req.body;
+
+        let result = await UserController.userRepository.updateOne(id, data);
+
+        if (result == null) {
+            return res.status(401).json({ msg: 'Error at tryng update', data: null })
+        } else {
+
+            return res.status(202).json({ msg: "Update with successfully", data: [] });
+        }
     }
 
     public routers(){
@@ -59,6 +71,11 @@ export class UserController {
                 validate(registerUserSchema),
                 new JwtAuth().validateToken, 
                 this.register
+            )
+            .patch(
+                '/api/user/:id',
+                new JwtAuth().validateToken,
+                this.update
             )
             .get(
                 '/api/user/signin', 

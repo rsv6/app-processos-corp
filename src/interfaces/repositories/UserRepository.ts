@@ -1,12 +1,12 @@
-import { ObjectId, ObtainDocumentType } from "mongoose";
+import { ObjectId } from "mongoose";
 import { JwtAuth } from "../../application/services/JwtAuth";
 import { User } from "../../domain/entities/User";
 import userModel from '../../domain/schemas/userSchema';
 import { ValidateRegister } from "../../application/services/ValidateRegister";
 
-export class UserRepositoy {
+export class UserRepository {
 
-    private static ListUsers: User[] = [];
+    private listUsers: User[] = [];
     private validateRegister = new ValidateRegister();
 
     async register(user: User) {
@@ -43,7 +43,33 @@ export class UserRepositoy {
 
     async findAll(): Promise<User[]> { 
 
-        // UserRepositoy.ListUsers.push(...UserRepositoy.usuariosMock);
-        return UserRepositoy.ListUsers;
+        const resListUsers = await userModel.find();
+
+        // this.listUsers.push(...listUsers)
+
+        return resListUsers;
+    }
+
+    async updateOne(id: string, data: User): Promise<any> {
+
+        try {
+            const result = await userModel.findOneAndUpdate(
+                { _id: id },
+                { $set: { 
+                    email: String(data?.email),
+                    nivel: String(data?.nivel),
+                    password: String(data?.password)
+                }}
+            )
+
+            if (!result) {
+                return null;
+            }
+
+            return [];
+        } catch (err) {
+            console.log("Error at update: ", err);
+            return null;
+        }
     }
 }
