@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { User } from "../entities/User";
+import { ENivel } from "../../types/Enums";
 
 const userSchema = new mongoose.Schema<User>(
     {
@@ -20,7 +21,7 @@ const userSchema = new mongoose.Schema<User>(
             require: true
         },
         nivel: {
-            type: String,
+            type: [],
             require: true
         }
     },

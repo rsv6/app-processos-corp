@@ -4,6 +4,7 @@ import { validate } from "../../application/services/validation";
 import { UserRepository  } from "../repositories/UserRepository";
 import { User } from "../../domain/entities/User";
 import { JwtAuth } from "../../application/services/JwtAuth";
+import { Document, Types } from "mongoose";
 
 export class UserController {
     private router: Router = Router();
@@ -11,84 +12,142 @@ export class UserController {
 
     private async register(req: Request, res: Response): Promise<Response> {
 
-        const {name, login, email, password} = req.body;
-        
-        let listNivel = req.user.nivel.split(",");
+        try {
+            const {name, login, email, password} = req.body;
 
-        if (listNivel.some(nivel => nivel != 'admin')) {
-            return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+            let listNivel = req.user.nivel
+
+            if (!listNivel.find(nivel => nivel == 'admin')) {
+                return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+            }
+    
+            if (!await UserController.userRepository.register(new User(name, login, email, password))) {
+                return await res.status(409).json({ msg: 'User already exist!!!' })
+            }
+
+            return await res.status(201).json({ 
+                msg: 'User created with successfully!!!', 
+                data: { 
+                    login: req.body.login 
+                    } 
+                });
+
+        } catch (err) {
+            console.log("Error : ", err);
+            return await res.status(401).json({ msg: "Found Error", data: [] });
         }
-
-        if (!await UserController.userRepository.register(new User(name, login, email, password))) {
-            return await res.status(409).json({ msg: 'User already exist!!!' })
-        }
-
-        return await res.status(201).json({ 
-            msg: 'User created with successfully!!!', 
-            data: { 
-                login: req.body.login 
-                } 
-            });
     }
 
     private async signIn(req: Request, res: Response): Promise<Response> {
 
-        const {login, password} = req.body;
+        try {
+            
+            const {login, password} = req.body;
+    
+            const token = await UserController.userRepository.signIn(login, password);
+    
+            if (!token) {
+                return await res.status(401).json({ msg: "Unauthorized", data: [] });
+            }
+    
+            return await res.status(200).json({ msg: "SignIn Successfully", data: token })
 
-        const token = await UserController.userRepository.signIn(login, password);
-
-        if (!token) {
-            return await res.status(401).json({ msg: "Unauthorized", data: [] });
+        } catch (err) {
+            console.log("Error: ", err);
+            return res.status(404).json({ msg: 'Exception Error', data: null })
         }
-
-        return await res.status(200).json({ msg: "SignIn Successfully", data: token })
     }
 
     private async findAll(req: Request, res: Response): Promise<Response> {
 
-
-        let listNivel = req.user.nivel.split(",");
-
-        if (listNivel.some(nivel => nivel != 'admin')) {
-            return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+        try {
+            
+            let listNivel = req.user.nivel
+    
+            if (!listNivel.find(nivel => nivel == 'admin')) {
+                return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+            }
+            return res.status(200).json({ msg: "ok", data: await UserController.userRepository.findAll() })
+        } catch (err) {
+            console.log("Error: ", err);
+            return res.status(404).json({ msg: 'Exception Error', data: null })
         }
-
-        // need to implement validation token of authorization for viewer all users: admin
-        return res.status(200).json({ msg: "ok", data: await UserController.userRepository.findAll() })
     }
 
     private async update(req: Request, res: Response): Promise<Response> {
 
-        const { id } = req.params;
-        const { data } = req.body;
+        try {
 
-        let result = await UserController.userRepository.updateOne(id, data);
+            const { id } = req.params;
+            const { data } = req.body;
+    
+            let listNivel = req.user.nivel
+    
+            if (!listNivel.find(nivel => nivel == 'admin')) {
 
-        if (result == null) {
-            return res.status(401).json({ msg: 'Error at tryng update', data: null })
-        } else {
+                // Create conditional for update only owner user:
+                let resultFindOne: any = await UserController.userRepository.findOne(req.user.login, req.user.email);
+        
+                if (!resultFindOne) {
+    
+                    console.log("Error in findOne of 'result'");
+                    return res.status(401).json({ msg: 'Error at tryng update', data: null })
+                }
+                   
+                if (String(resultFindOne._id) != id) {
 
+                    console.log("Operation not authorized!")
+                    return res.status(202).json({ msg: "Operation not authorized!", data: null });
+                }
+
+                    let resultUpdateOne = await UserController.userRepository.updateOne(id, data);
+    
+                    if (resultUpdateOne == null) {
+                        return res.status(401).json({ msg: 'Error at tryng update', data: null })
+                    } 
+        
+                    return res.status(202).json({ msg: "Update with successfully", data: [] });
+                
+            }
+
+            let result = await UserController.userRepository.updateOne(id, data);
+    
+            if (result == null) {
+                return res.status(401).json({ msg: 'Error at tryng update', data: null })
+            }
+    
             return res.status(202).json({ msg: "Update with successfully", data: [] });
-        }
+        } catch (err) {
+            console.log("Error: ", err);
+            return res.status(404).json({ msg: 'Exception Error', data: null })
+        }   
     }
 
     private async delete(req: Request, res: Response): Promise<Response> {
 
-        const { id } = req.params;
+        try {
 
-        let listNivel = req.user.nivel.split(",");
+            const { id } = req.params;
+            
+            let listNivel = req.user.nivel
+    
+            if (!listNivel.find(nivel => nivel == 'admin')) {
+                return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+            }
+    
+            let result = await UserController.userRepository.deleteOne(id);
+    
+            if (result == null) {
+                return res.status(401).json({ msg: 'Error at tryng delete', data: null })
+            } else {
+                return res.status(202).json({ msg: "Delete with successfully", data: [] });
+            }
 
-        if (listNivel.some(nivel => nivel != 'admin')) {
-            return res.status(401).json({ msg: 'Method not authorized at user', data: null })
+        } catch (err) {
+            console.log("Error: ", err);
+            return res.status(404).json({ msg: 'Exception Error', data: null })
         }
 
-        let result = await UserController.userRepository.deleteOne(id);
-
-        if (result == null) {
-            return res.status(401).json({ msg: 'Error at tryng delete', data: null })
-        } else {
-            return res.status(202).json({ msg: "Delete with successfully", data: [] });
-        }
     }
 
     public routers(){

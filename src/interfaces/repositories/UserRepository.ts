@@ -1,4 +1,4 @@
-import { ObjectId } from "mongoose";
+import { Document, ObjectId } from "mongoose";
 import { JwtAuth } from "../../application/services/JwtAuth";
 import { User } from "../../domain/entities/User";
 import userModel from '../../domain/schemas/userSchema';
@@ -48,6 +48,21 @@ export class UserRepository {
         // this.listUsers.push(...listUsers)
 
         return resListUsers;
+    }
+
+    async findOne(login: string, email: string): Promise<Object | null> {
+
+        try {
+
+            const result = await userModel.findOne({
+                $and:[{ login }, { email }]
+            })
+
+            return result;
+        } catch (err) {
+            console.log("Error at update: ", err);
+            return null;
+        }
     }
 
     async updateOne(id: string, data: User): Promise<any> {

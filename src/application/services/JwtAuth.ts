@@ -5,12 +5,18 @@ import { User } from '../../domain/entities/User';
 export class JwtAuth {
     
     generateAcessToken(user: User) {
+
+        // const tokenUpdate = user.name
+        //     .concat("-"+user.login) 
+        //     .concat("-"+user.nivel)
+
         return jwt.sign(
             {
                 name: user.name,
                 login: user.login,
                 email: user.email,
-                nivel: user.nivel  
+                nivel: user.nivel,
+                // userUpdate: user.name.concat(user.login).concat()  
             }, 
             String(process.env.TOKEN_SECRET),
             {
@@ -32,7 +38,6 @@ export class JwtAuth {
             process.env.TOKEN_SECRET as string,
             (err: any, user: any) => {
                 if (err) return res.status(401).json({ msg: "Unauthorized: token bad formated!"});
-
                 req.user = user;
                 return next();
             }

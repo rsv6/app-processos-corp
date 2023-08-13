@@ -1,3 +1,4 @@
+import { ENivel } from "../../types/Enums";
 
 
 export class User {
@@ -5,13 +6,13 @@ export class User {
     login : string = "";
     email : string = "";
     password : string = "";
-    nivel: string = "";
+    nivel: ENivel[] = []
 
     constructor(name: string, login: string, email: string, password: string ) {
         this.name = name;
         this.login = login;
         this.email = email;
         this.password = password;
-        this.nivel = "user";
+        this.nivel.push(ENivel.user);
     }
 }
