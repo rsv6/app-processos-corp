@@ -72,4 +72,22 @@ export class UserRepository {
             return null;
         }
     }
+
+    async deleteOne(id: string): Promise<any> {
+
+        try {
+            const result = await userModel.deleteOne({ _id: id });
+
+            console.log(result);
+            if (result.deletedCount == 0) {
+                return null;
+            }
+
+            return [];
+
+        } catch (err) {
+            console.log("Error at delete: ", err);
+            return null
+        }
+    }
 }
