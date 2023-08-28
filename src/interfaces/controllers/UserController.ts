@@ -29,8 +29,8 @@ export class UserController {
                 msg: 'User created with successfully!!!', 
                 data: { 
                     login: req.body.login 
-                    } 
-                });
+                } 
+            });
 
         } catch (err) {
             console.log("Error : ", err);

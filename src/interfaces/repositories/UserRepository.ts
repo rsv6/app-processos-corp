@@ -28,9 +28,12 @@ export class UserRepository {
         }
     }
 
+    // async signIn(login: string, password: string): Promise<string | null> {
     async signIn(login: string, password: string): Promise<string | null> {
 
         const user = await userModel.findOne({ $and: [ { login}, { password }] }) 
+
+        console.log("User: ", user);
 
         if (!user) return null;
 
